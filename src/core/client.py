@@ -37,6 +37,20 @@ class YouGileClient:
         if self._client:
             await self._client.aclose()
     
+    async def _auto_reinitialize(self):
+        """Automatically reinitialize authentication if possible."""
+        if all([settings.yougile_email, settings.yougile_password, settings.yougile_company_id]):
+            # Import here to avoid circular imports
+            from .. import server
+            from . import auth
+            await server.initialize_auth()
+            # Update local auth_manager with global credentials
+            if auth.auth_manager.is_authenticated():
+                self.auth_manager.set_credentials(
+                    auth.auth_manager.api_key, 
+                    auth.auth_manager.company_id
+                )
+    
     async def request(
         self,
         method: str,
@@ -53,6 +67,9 @@ class YouGileClient:
         if path.startswith("/auth/") or path.startswith("/api-v2/auth/"):
             headers = self.auth_manager.get_basic_headers()
         else:
+            # Auto-reinitialize if not authenticated
+            if not self.auth_manager.is_authenticated():
+                await self._auto_reinitialize()
             headers = self.auth_manager.get_auth_headers()
             
         full_url = f"/api-v2{path}" if not path.startswith("/api-v2") else path
