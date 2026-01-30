@@ -6,15 +6,13 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-    }:
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+  }:
     flake-utils.lib.eachDefaultSystem (
-      system:
-      let
+      system: let
         pkgs = nixpkgs.legacyPackages.${system};
         python = pkgs.python3; # Uses the default Python 3 in nixpkgs
 
@@ -24,13 +22,11 @@
           version = "1.0.0";
           src = pkgs.lib.cleanSourceWith {
             src = ./.;
-            filter =
-              path: type:
-              let
-                baseName = baseNameOf path;
-                # relative path from the root of the source
-                relPath = pkgs.lib.removePrefix (toString ./.) (toString path);
-              in
+            filter = path: type: let
+              baseName = baseNameOf path;
+              # relative path from the root of the source
+              relPath = pkgs.lib.removePrefix (toString ./.) (toString path);
+            in
               (pkgs.lib.hasPrefix "/src" relPath) || (baseName == "pyproject.toml") || (baseName == "README.md");
           };
           format = "pyproject";
@@ -51,27 +47,31 @@
           # Skip tests as none are defined yet
           doCheck = false;
         };
-      in
-      {
+      in {
+        formatter = pkgs.alejandra;
+
         packages.default = yougile-mcp;
         packages.yougile-mcp = yougile-mcp;
 
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
+            alejandra
+
             (python.withPackages (
-              ps: with ps; [
-                mcp
-                httpx
-                pydantic
-                pydantic-settings
-                python-dotenv
-                typer
-                setuptools
-                pip
-                pytest
-                ruff
-                pyright
-              ]
+              ps:
+                with ps; [
+                  mcp
+                  httpx
+                  pydantic
+                  pydantic-settings
+                  python-dotenv
+                  typer
+                  setuptools
+                  pip
+                  pytest
+                  ruff
+                  pyright
+                ]
             ))
           ];
 
