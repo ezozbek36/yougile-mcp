@@ -22,7 +22,17 @@
         yougile-mcp = python.pkgs.buildPythonApplication {
           pname = "yougile-mcp";
           version = "1.0.0";
-          src = ./.;
+          src = pkgs.lib.cleanSourceWith {
+            src = ./.;
+            filter =
+              path: type:
+              let
+                baseName = baseNameOf path;
+                # relative path from the root of the source
+                relPath = pkgs.lib.removePrefix (toString ./.) (toString path);
+              in
+              (pkgs.lib.hasPrefix "/src" relPath) || (baseName == "pyproject.toml") || (baseName == "README.md");
+          };
           format = "pyproject";
 
           nativeBuildInputs = [
@@ -66,17 +76,14 @@
           ];
 
           shellHook = ''
+            export PYTHONPATH="$PWD/src:$PYTHONPATH"
             echo "--- YouGile MCP Development Shell ---"
             echo "Python $(python --version)"
-            echo ""
-            echo "DEVELOPMENT HINT:"
-            echo "The 'src' directory is in your current path. To use it as an 'editable' install,"
-            echo "simply ensure it's in your PYTHONPATH:"
-            echo "  export PYTHONPATH=\$PWD:\$PYTHONPATH"
+            echo "PYTHONPATH set to include ./src"
             echo ""
             echo "Available commands:"
             echo "  yougile-mcp          - Run the installed server"
-            echo "  python run_server.py - Run the server via wrapper"
+            echo "  python -m yougile_mcp.server - Run the server module"
             echo "------------------------------------"
           '';
         };
