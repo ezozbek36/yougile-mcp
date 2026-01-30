@@ -19,6 +19,19 @@ MCP сервер для интеграции с YouGile. Работает с л�
 
 ## 📦 Установка
 
+### Nix (Альтернативный способ)
+Если вы используете [Nix](https://nixos.org/), вы можете запустить сервер или войти в среду разработки без ручного управления зависимостями.
+
+**Прямой запуск:**
+```bash
+nix run github:justrussian/yougile-mcp
+```
+
+**Окружение для разработки:**
+```bash
+nix develop
+```
+
 ### 1. Скачайте проект
 ```bash
 git clone https://github.com/justrussian/yougile-mcp.git
@@ -49,7 +62,30 @@ pip install -r requirements.txt
 
 ### 5. Подключите к AI помощнику
 
-**Для Claude Desktop:**
+**Для Claude Desktop (с использованием Nix):**
+```json
+{
+  "mcpServers": {
+    "yougile": {
+      "command": "nix",
+      "args": [
+        "run",
+        "--extra-experimental-features",
+        "nix-command flakes",
+        "github:justrussian/yougile-mcp"
+      ],
+      "env": {
+        "YOUGILE_BASE_URL": "https://yougile.com",
+        "YOUGILE_EMAIL": "ваш-email@yougile.com",
+        "YOUGILE_PASSWORD": "ваш-пароль",
+        "YOUGILE_COMPANY_ID": "ваш-company-id"
+      }
+    }
+  }
+}
+```
+
+**Для Claude Desktop (традиционный способ):**
 
 Добавьте в конфигурацию Claude Desktop:
 ```json
