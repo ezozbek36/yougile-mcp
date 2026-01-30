@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yougile-mcp"
+version = "1.0.0"
+description = "YouGile MCP Server for Model Context Protocol"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "httpx>=0.25.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "typer>=0.9.0",
+]
+
+[project.scripts]
+yougile-mcp = "src.server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
